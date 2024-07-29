@@ -1,0 +1,38 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Podman
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y podman
+
+    - name: Build Docker image
+      run: |
+        podman build --platform=linux/amd64 -t localhost/vamsi8977/jenkins-agent:latest .
+
+    - name: Tag Docker image
+      run: |
+        podman tag localhost/vamsi8977/jenkins-agent vamsi8977/jenkins-agent:latest
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Push Docker image to Docker Hub
+      run: |
+        podman push vamsi8977/jenkins-agent:latest
