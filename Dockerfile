@@ -146,6 +146,25 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | b
     nvm use default && \
     npm -v
 
+# Install rbenv and ruby-build
+RUN git clone https://github.com/rbenv/rbenv.git /root/.rbenv && \
+    git clone https://github.com/rbenv/ruby-build.git /root/.rbenv/plugins/ruby-build
+
+# Set up rbenv environment
+RUN echo 'export RBENV_ROOT="/root/.rbenv"' >> /root/.bashrc && \
+    echo 'export PATH="$RBENV_ROOT/bin:$PATH"' >> /root/.bashrc && \
+    echo 'eval "$(rbenv init -)"' >> /root/.bashrc
+
+# Install Ruby and Bundler
+RUN export RBENV_ROOT="/root/.rbenv" && \
+    export PATH="$RBENV_ROOT/bin:$PATH" && \
+    eval "$(rbenv init -)" && \
+    /root/.rbenv/bin/rbenv install 3.1.2 && \
+    /root/.rbenv/bin/rbenv global 3.1.2 && \
+    /root/.rbenv/shims/gem install bundler && \
+    /root/.rbenv/shims/ruby -v && \
+    /root/.rbenv/shims/bundler -v
+
 # Install Terraform
 RUN curl -fsSL https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip -o /tmp/terraform.zip \
     && unzip /tmp/terraform.zip -d /usr/local/bin \
