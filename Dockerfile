@@ -137,6 +137,15 @@ RUN curl -fsSL -o /tmp/maven-bin.zip https://archive.apache.org/dist/maven/maven
     && mvn -version \
     && rm -rf /tmp/maven-bin.zip
 
+# Install Node.js and npm using nvm
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash && \
+    export NVM_DIR="$HOME/.nvm" && \
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+    nvm install 16 && \
+    nvm alias default 16 && \
+    nvm use default && \
+    npm -v
+
 # Install Terraform
 RUN curl -fsSL https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip -o /tmp/terraform.zip \
     && unzip /tmp/terraform.zip -d /usr/local/bin \
