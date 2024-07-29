@@ -1,0 +1,6 @@
+argparse
+awslambdaric
+bcrypt
+cmake
+git-remote-codecommit
+ujson
