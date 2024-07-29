@@ -79,7 +79,8 @@ RUN mkdir /var/run/sshd \
     && echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config \
     && echo "UsePAM yes" >> /etc/ssh/sshd_config \
     && echo "AllowTcpForwarding yes" >> /etc/ssh/sshd_config \
-    && echo "Subsystem sftp /usr/lib/openssh/sftp-server" >> /etc/ssh/sshd_config
+    && echo "Subsystem sftp /usr/lib/openssh/sftp-server" >> /etc/ssh/sshd_config \
+    && sed -i '/Subsystem sftp\/usr\/lib\/openssh\/sftp-server/d' /etc/ssh/sshd_config
 
 # Expose the SSH port
 EXPOSE 22
@@ -208,7 +209,8 @@ RUN rm -rf /opt/stack/core/src/infra_core.egg-info \
     && rm -rf /opt/stack/core/src/regional/aws/stack-buckets/* \
     && rm -rf /opt/stack/core/src/regional/helm/jenkins/* \
     && rm -rf /opt/stack/core/src/regional/helm/service-accounts/* \
-    && rm -rf /opt/stack/core/src/regional/minikube/*
+    && rm -rf /opt/stack/core/src/regional/minikube/* \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Python with asdf
 RUN /bin/bash -c "source /usr/local/asdf/asdf.sh && asdf plugin-add python" && \
@@ -223,6 +225,9 @@ RUN /bin/bash -c "source /usr/local/asdf/asdf.sh && asdf plugin-add java" && \
 
 # Set the working directory
 WORKDIR /opt/stack/core
+
+# Set up SSH and other services
+RUN mkdir -p /var/run/sshd
 
 # Switch back to non-root user
 USER jenkins
