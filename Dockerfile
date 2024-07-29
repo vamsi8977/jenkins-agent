@@ -67,23 +67,9 @@ RUN apt-get update \
         xz-utils \
         zip \
         openssh-server \
+        vim \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
-# Create SSHD run directory and configure SSHD
-RUN mkdir /var/run/sshd \
-    && echo 'jenkins:jenkins' | chpasswd \
-    && sed -i 's/^#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
-    && sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config \
-    && echo "PasswordAuthentication no" >> /etc/ssh/sshd_config \
-    && echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config \
-    && echo "UsePAM yes" >> /etc/ssh/sshd_config \
-    && echo "AllowTcpForwarding yes" >> /etc/ssh/sshd_config \
-    && echo "Subsystem sftp /usr/lib/openssh/sftp-server" >> /etc/ssh/sshd_config \
-    && sed -i '/Subsystem sftp\/usr\/lib\/openssh\/sftp-server/d' /etc/ssh/sshd_config
-
-# Expose the SSH port
-EXPOSE 22
 
 # Configure Jenkins Home Directory
 RUN mkdir -p /home/jenkins \
@@ -94,6 +80,32 @@ RUN mkdir -p /home/jenkins \
 RUN mkdir -p /home/jenkins/.ssh \
     && chmod 700 /home/jenkins/.ssh \
     && chown -R jenkins:jenkins /home/jenkins/.ssh
+
+# Copy the SSH key generation script
+COPY ./docker/jenkins/generate_ssh_keys.sh /usr/local/bin/generate_ssh_keys.sh
+
+# Make the script executable
+RUN chmod +x /usr/local/bin/generate_ssh_keys.sh
+
+# Run the script to generate SSH keys as the jenkins user
+USER jenkins
+RUN /usr/local/bin/generate_ssh_keys.sh
+
+USER root
+# Configure SSHD
+RUN mkdir -p /var/run/sshd \
+    && chmod 0755 /var/run/sshd \
+    && echo 'jenkins:jenkins' | chpasswd \
+    && sed -i 's/^#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
+    && sed -i 's/^#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config \
+    && echo "PasswordAuthentication no" >> /etc/ssh/sshd_config \
+    && echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config \
+    && echo "UsePAM yes" >> /etc/ssh/sshd_config \
+    && echo "AllowTcpForwarding yes" >> /etc/ssh/sshd_config \
+    && sed -i '/Subsystem sftp\/usr\/lib\/openssh\/sftp-server/d' /etc/ssh/sshd_config
+
+# Expose the SSH port
+EXPOSE 22
 
 # Install AWS CLI v2
 RUN curl https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip -o /tmp/aws.zip \
@@ -226,11 +238,7 @@ RUN /bin/bash -c "source /usr/local/asdf/asdf.sh && asdf plugin-add java" && \
 # Set the working directory
 WORKDIR /opt/stack/core
 
-# Set up SSH and other services
-RUN mkdir -p /var/run/sshd
-
-# Switch back to non-root user
 USER jenkins
 
-# Start the SSH daemon
+# Run SSHD in foreground mode
 CMD ["/usr/sbin/sshd", "-D"]
