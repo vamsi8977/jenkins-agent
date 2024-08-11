@@ -102,7 +102,7 @@ RUN mkdir -p /var/run/sshd \
     && echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config \
     && echo "UsePAM yes" >> /etc/ssh/sshd_config \
     && echo "AllowTcpForwarding yes" >> /etc/ssh/sshd_config \
-    && sed -i '/Subsystem sftp\/usr\/lib\/openssh\/sftp-server/d' /etc/ssh/sshd_config
+    && sed -i '/Subsystem sftp \/usr\/lib\/openssh\/sftp-server/d' /etc/ssh/sshd_config
 
 # Expose the SSH port
 EXPOSE 22
@@ -190,7 +190,7 @@ RUN curl -fsSL https://get.helm.sh/helm-v3.12.0-linux-amd64.tar.gz -o /tmp/helm.
     && tar -xzf /tmp/helm.tar.gz -C /tmp \
     && mv /tmp/linux-amd64/helm /usr/local/bin/helm \
     && chmod +x /usr/local/bin/helm \
-    && helm version --short \
+    && helm version \
     && rm -rf /tmp/helm.tar.gz /tmp/linux-amd64
 
 # Install kubectl
@@ -235,10 +235,8 @@ RUN /bin/bash -c "source /usr/local/asdf/asdf.sh && asdf plugin-add java" && \
     /bin/bash -c "source /usr/local/asdf/asdf.sh && asdf install java corretto-22.0.1.8.1" && \
     /bin/bash -c "source /usr/local/asdf/asdf.sh && asdf reshim java"
 
-# Set the working directory
-WORKDIR /opt/stack/core
-
-USER jenkins
-
-# Run SSHD in foreground mode
+# Start SSHD service
 CMD ["/usr/sbin/sshd", "-D"]
+
+# Switch back to Jenkins user
+USER jenkins
