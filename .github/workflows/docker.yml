@@ -23,11 +23,11 @@ jobs:
 
     - name: Build Docker image
       run: |
-        podman build --platform=linux/amd64 -t spr/krishna .
+        podman build --platform=linux/amd64 -t spr/bommasani .
 
     - name: Tag Docker image
       run: |
-        podman tag spr/krishna:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/spr/krishna:latest
+        podman tag spr/bommasani:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/spr/bommasani:latest
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
@@ -42,4 +42,4 @@ jobs:
 
     - name: Push Docker image to Amazon ECR
       run: |
-        podman push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/spr/krishna:latest
+        podman push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/spr/bommasani:latest
