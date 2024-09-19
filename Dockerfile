@@ -11,7 +11,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 #ENV PATH="/usr/local/asdf/bin:/usr/local/asdf/shims:$PATH"
 
 # Switch to root temporarily to manage package installs
-#USER root
+USER root
 
 # Clone asdf
-#RUN git clone https://github.com/asdf-vm/asdf.git /usr/local/asdf
+RUN git clone https://github.com/asdf-vm/asdf.git /usr/local/asdf
