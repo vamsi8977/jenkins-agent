@@ -1,8 +1,8 @@
 # Base image
 FROM --platform=linux/amd64 docker.io/jenkins/jnlp-slave:latest-jdk11
 
-# # Avoid prompts during package installation
-# ARG DEBIAN_FRONTEND=noninteractive
+# Avoid prompts during package installation
+ARG DEBIAN_FRONTEND=noninteractive
 
 # Set environment variables for asdf
 ENV ASDF_DATA_DIR /usr/local/asdf
